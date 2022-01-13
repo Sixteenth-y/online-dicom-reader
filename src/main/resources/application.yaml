@@ -1,0 +1,36 @@
+server:
+  port: 8088
+  servlet:
+    encoding:
+      charset: utf8
+      force: true
+      enable: true
+spring:
+  mvc:
+    static-path-pattern: /static/**
+  freemarker:
+    charset: utf8
+    content-type: text/html
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    mode: HTML
+    servlet:
+      content-type: text/html
+    encoding: UTF-8
+  datasource:
+    url: jdbc:mysql://localhost:3306
+    username: root
+    password: root
+  web:
+    resources:
+      static-locations: classpath:/static/
+#mybatis:
+#  mapper-locations: classpath:com/pg_chat/mapper/*.xml
+#  type-aliases-package: com.pg_chat.model
+
+logging:
+  file:
+    name: logger.log
+
