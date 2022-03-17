@@ -1,6 +1,6 @@
 package com.dicomreader.controller;
 
-import lombok.extern.slf4j.Slf4j;
+//import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
  * @describ
  * @create 2021-10-14
  */
-@Slf4j
+//@Slf4j
 @RestController
 @RequestMapping(value = "/DcmReader")
 public class DcmReaderController {

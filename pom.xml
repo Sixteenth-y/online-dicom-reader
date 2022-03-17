@@ -18,15 +18,14 @@
     </properties>
     <repositories><!-- 代码库 -->
         <repository>
-            <id>maven-ali</id>
-            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <id>Dcm4Che</id>
+            <name>Dcm4Che</name>
+            <url>http://www.dcm4che.org/maven2/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
+                <enabled>false</enabled>
             </snapshots>
         </repository>
         <repository>
@@ -41,22 +40,8 @@
                 <checksumPolicy>fail</checksumPolicy>
             </snapshots>
         </repository>
-        <repository>
-            <id>Dcm4Che</id>
-            <name>Dcm4Che</name>
-            <url>http://www.dcm4che.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>org.dcm4chee</id>
-            <name>DCM4CHE</name>
-            <url>http://www.dcm4che.org/maven2/</url>
-        </repository>
+
+
     </repositories>
     <dependencies>
         <dependency>
@@ -99,6 +84,7 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
+            <systemPath>${project.basedir}\src\main\resources\lib\dcm4che-core-5.23.3.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.dcm4che</groupId>
@@ -114,6 +100,7 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
+            <systemPath>${project.basedir}\src\main\resources\lib\dcm4che-image-5.23.3.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.tool</groupId>
@@ -129,6 +116,7 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
+            <systemPath>${project.basedir}\src\main\resources\lib\dcm4che-tool-common-5.23.3.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.tool</groupId>
@@ -144,6 +132,7 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
+            <systemPath>${project.basedir}\src\main\resources\lib\dcm4che-tool-dcm2jpg-5.23.3.jar</systemPath>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>org.dcm4che.tool</groupId>-->
@@ -159,9 +148,28 @@
         <!--end        -->
         <!-- https://mvnrepository.com/artifact/net.imagej/ij -->
         <dependency>
+            <groupId>org.dcm4che</groupId>
+            <artifactId>dcm4che-imageio</artifactId>
+            <version>5.23.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+            <systemPath>${project.basedir}\src\main\resources\lib\dcm4che-imageio-5.23.3.jar</systemPath>
+        </dependency>
+
+
+        <dependency>
             <groupId>net.imagej</groupId>
             <artifactId>ij</artifactId>
             <version>1.53j</version>
+            <systemPath>${project.basedir}\src\main\resources\lib\ij-1.53j.jar</systemPath>
         </dependency>
 
         <!--opencv process image-->

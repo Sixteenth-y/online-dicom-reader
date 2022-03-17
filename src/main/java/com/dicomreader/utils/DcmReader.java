@@ -6,6 +6,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.tool.dcm2jpg.Dcm2Jpg;
+import org.dcm4che3.imageio.plugins.dcm.DicomImageReader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -135,6 +136,7 @@ public class DcmReader {
             System.out.println("SOP Instance UID:" + attrs.getString(Tag.SOPInstanceUID));
             myDicom.setImageType(attrs.getString(Tag.ImageType));
             System.out.println("ImageType: " + attrs.getString(Tag.ImageType));
+
             myDicom.setDcmImage(ImageIO.read(dcmFile));
             dcmIS.close();
             System.out.println("[success] open the file");

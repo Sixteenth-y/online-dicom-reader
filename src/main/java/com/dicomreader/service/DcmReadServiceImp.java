@@ -1,7 +1,7 @@
 package com.dicomreader.service;
 
 import com.dicomreader.utils.DcmReader;
-import lombok.extern.slf4j.Slf4j;
+//import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-@Slf4j
+//@Slf4j
 @Service
 public class DcmReadServiceImp implements DcmReaderService{
 
