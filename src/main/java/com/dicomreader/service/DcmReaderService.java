@@ -3,7 +3,10 @@ package com.dicomreader.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
+
 @Service
 public interface DcmReaderService {
-    public void initFile(MultipartFile file);
+    public String initFile(MultipartFile file);
+    public BufferedImage getImageFile();
 }

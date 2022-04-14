@@ -25,7 +25,9 @@ spring:
     password: root
   web:
     resources:
-      static-locations: classpath:/static/
+      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${tempFilePath.directory}
+
+
 #mybatis:
 #  mapper-locations: classpath:com/pg_chat/mapper/*.xml
 #  type-aliases-package: com.pg_chat.model
@@ -33,4 +35,6 @@ spring:
 logging:
   file:
     name: logger.log
-
+#自定义属性
+tempFilePath:
+  directory: D://temp/images/

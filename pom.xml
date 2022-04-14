@@ -165,13 +165,6 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>net.imagej</groupId>
-            <artifactId>ij</artifactId>
-            <version>1.53j</version>
-            <systemPath>${project.basedir}\src\main\resources\lib\ij-1.53j.jar</systemPath>
-        </dependency>
-
         <!--opencv process image-->
         <dependency>
             <groupId>org</groupId>

@@ -4,24 +4,163 @@
     <meta charset="UTF-8">
     <title>Dicom文件在线读取</title>
     <link rel="stylesheet" href="/static/CSS/dR.css">
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/JS/JQuery/jquery-3.6.0.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
 
 </head>
 <body>
     <div id="app">
-        <p class="flex-title">DcmReader</p>
-        <input type="file">
-        
+        <nav class="navbar navbar-default navbar-fixed-top"><!--bootstrap navbar导航栏-->
+            <div class="container-fluid">
+                <div id="bs-example-navbar-collapse-1" class="collapse navbar-collapse" >
+                    <ul class="nav navbar-nav" >
+                        <li class="dropdown"><!--保存文件和上传文件 dropdown下拉菜单-->
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                               role="button" aria-haspopup="true" aria-expanded="false">文件
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" >
+                                <li>
+                                    <label for="uploadFileInput">上传文件</label>
+                                    <input id="uploadFileInput" type="file" @change="uploadFile" ref="uploadFileRef">
+                                </li>
+                                <li @click="downloadFile">
+                                    <a id="downloadFileInput" href="#">保存文件</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown" v-for="item in toolBarList">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"Spec
+                               role="button" aria-haspopup="true" aria-expanded="false">{{item.name}}
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" >
+                                <li v-for="act in item.actions" @click="toolBarFunc(act.url)">
+                                    <a href="#" :id="setOperationId(act.url)">{{act.tag}}</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div><!--id="bs-example-navbar-collapse-1"-->
+            </div><!--navbar navbar-default navbar-fixed-bottom-->
+        </nav>
+        <div class="row">
+            <div id="imgPanel" class="align-items-center">
+                <div id="srcImgPanel" class="col-md-6">
+                    <img class="img-responsive" :src="srcImagePath">
+                </div>
+                <div id="dstImgPanel" class="col-md-6">
+                    <img class="img-responsive" :src="dstImagePath">
+                </div>
+            </div>
+        </div>
+
 
 
     </div>
-    <script src="/static/js/axios/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
 
+    <script src="/static/JS/vue/vue_3_2_29/vue.global.js"></script>
+    <script src="/static/JS/axios/axios.js"></script>
     <script>
-        var uploadUrl = 'DcmReader/upload'; //设置上传路径
-        const con = ({});
-        const app =Vue.creatApp(con).mount('#app')
+        const con = {
+            data(){
+                return{
+                    srcImagePath: '#',
+                    dstImagePath: '#',
+                    toolBarList: [
+                        {name: '图像增强', actions: [
+                            {tag: '增亮', url: 'brightening'}
+                            , {tag: '直方图均衡化', url: 'histEqualize'}
+                            , {tag: '拉普拉斯变化', url: 'laplaceEnhance'}
+                            , {tag: '对数变换', url: 'logEnhance'}]}
+                        , {name: '图像锐化', actions: [
+                            {tag: '锐化', url: 'sharpen'}]}
+                        , {name: '图像模糊', actions: [
+                            {tag: '均值滤波', url: 'blur'}
+                            , {tag: '中值滤波', url: 'medianBlur'}
+                            , {tag: '高斯滤波', url: 'GaussianBlur'}]}
+
+                        , {name: '形态学', actions: [
+                             {tag: '开运算', url: 'open'}
+                            , {tag: '闭运算', url: 'close'}
+                            ]}
+                        , {name: '图像分割', actions: [
+                            {tag: '自适应', url: 'thresholdApt'}
+                            ]}
+
+                        , {name: '撤销', actions: [
+                            {tag: '撤销', url: 'back'}]}
+                        , {name: '重做', actions: [
+                            {tag: '重做', url: 'reset'}]}
+                    ]
+
+
+                }
+            },
+            methods:{
+                /**
+                 * 封装异步请求
+                 * @param api 接口
+                 * @param dataMap 数据
+                 */
+                 myAxios(api,dataMap){
+                    return new Promise((resolve, reject) => {
+                        axios({
+                            method: 'post',
+                            url: 'DcmReader/' + api,
+                            data: dataMap
+                        }).then((res) => {
+                            resolve(res.data);
+                        }).catch(err => {
+                            console.log(err)
+                            reject('error');
+                        })
+                    })
+                },
+                /**
+                 * 工具栏操作
+                 * @param api
+                 */
+                async toolBarFunc(api){
+                    const con = this;
+                    let map = {'path' : con.srcImagePath};
+                    if(con.srcImagePath !== '#')
+                        con.dstImagePath = await con.myAxios(api, map);
+                },
+                /**
+                 * 设置id
+                 * @param name
+                 * @returns {string}
+                 */
+                setOperationId(name){
+                    return 'operate-'+name;
+                },
+                /**
+                 * 上传文件
+                 * @param e
+                 */
+                 async uploadFile(e){
+                    const con = this;
+                    console.log("hello!");
+                    let objFile = con.$refs.uploadFileRef.files[0];
+                    let formDate = new FormData();
+                    formDate.append('file',objFile);
+                    con.srcImagePath = await con.myAxios('upload',formDate);
+                    con.dstImagePath = con.srcImagePath;
+                    console.log('=>'+con.srcImagePath);
+                },
+                /**
+                 * 下载文件
+                 */
+                downloadFile(){
+                    const con = this;
+                    console.log('DcmReader/download?path='+encodeURI(con.dstImagePath));
+                    window.location.href = 'DcmReader/download?path='+encodeURI(con.dstImagePath);
+                }
+            }
+        };
+        const app = Vue.createApp(con).mount('#app')
 
     </script>
 </body>
