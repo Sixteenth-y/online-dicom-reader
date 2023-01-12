@@ -112,7 +112,7 @@ public class DcmReaderGUI extends JFrame {
                 reader.openDcmFile();
                 reader.getDcmImage();
                 label.setIcon(new ImageIcon(reader.imagePath));
-                System.out.println(reader.imagePath());
+                System.out.println(reader.imagePath);
 
 
             }
