@@ -44,7 +44,7 @@ import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 import static org.opencv.imgproc.Imgproc.*;
 
 
-@Component
+
 public class DcmReader {
 
     static {
