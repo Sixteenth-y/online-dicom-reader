@@ -47,6 +47,7 @@ import static org.opencv.imgproc.Imgproc.*;
 
 public class DcmReader {
 
+
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         URL url = ClassLoader.getSystemResource("lib/opencv/opencv_java440.dll");
@@ -63,27 +64,29 @@ public class DcmReader {
     private static final String DEFAULT_TEMP_PATH = "src/main/resources/static/DICOM/image/temp/";
     private static final String ERROR =
             "src/main/resources/static/DICOM/image/error.jpg";
-    private File dicom = null;
+    //private File dicom = null;
     private static final String BMP = "bmp";
     private static final String JPG = "jpg";
-    private static MyDicom myDicom = new MyDicom();
-    public String imagePath = "";
+//    private static MyDicom myDicom = new MyDicom();
+    //public String imagePath = "";
+
+    private volatile static DcmReader dcmReader;
 
     public static void main(String[] args) {
         DcmReader reader = new DcmReader();
         String[] path = {"82821227", "image-00001.dcm", "image-00000.dcm", "image_001.dcm", "image_002.dcm" };
-        File dcmFile = new File(DEFAULT_DICOM_PATH + path[0]);
-        reader.setDicom(dcmFile);
+        MyDicom dcmFile = new MyDicom(DEFAULT_DICOM_PATH + path[0]);
+
         //reader.getDcmFile();
         //reader.getDcmImage(BMP);
-        reader.openDcmFile();
+        //reader.openDcmFile();
         try {
-            reader.saveDcmFile("D:\\User\\Desktop\\test.dcm");
+            reader.saveDcmFile(dcmFile, "D:\\User\\Desktop\\test.dcm");
         } catch (IOException e) {
             e.printStackTrace();
         }
         System.out.println("result: "+isDicomFile(dcmFile));
-        reader.getDcmImage();
+        //reader.getDcmImage();
         try {
             //reader.rgb2gray(reader.getImagePath());
             reader.brightening(ERROR);
@@ -93,7 +96,25 @@ public class DcmReader {
         //reader.imagePix();
     }
 
-    public DcmReader() {
+    private DcmReader() {
+    }
+
+    /**
+     * 获取dcmReader实例
+     * @return
+     */
+    public static synchronized DcmReader getInstance(){
+
+            if(dcmReader == null){
+                synchronized (DcmReader.class){
+
+                    dcmReader = new DcmReader();
+                }
+
+            }
+
+            return dcmReader;
+
     }
 
 
@@ -118,49 +139,66 @@ public class DcmReader {
         return "DICM".equals(new String(dicomHead));
     }
 
-    public void setDicom(File dcmFile) {
-        if(isDicomFile(dcmFile))
-            this.dicom = dcmFile;
-        else
-            this.dicom = null;
-    }
+//    public void setDicom(File dcmFile) {
+//        if(isDicomFile(dcmFile))
+//            this.dicom = dcmFile;
+//        else
+//            this.dicom = null;
+//    }
+//
+//    public File getDicom() {
+//        if(this.dicom == null){
+//            System.out.println("[error] not DICOM");
+//            return null;
+//        }
+//
+//        if (dicom.exists() || dicom.isDirectory()){
+//            System.out.println("[success] DICOM: " + dicom.getPath());
+//            return this.dicom;
+//        }else {
+//            System.out.println("[error] DICOM file not find");
+//            return null;
+//        }
+//
+//    }
 
-    public File getDicom() {
-        if(this.dicom == null){
-            System.out.println("[error] not DICOM");
-            return null;
-        }
+//    public String getImagePath(){
+//        return imagePath;
+//    }
 
-        if (dicom.exists() || dicom.isDirectory()){
-            System.out.println("[success] DICOM: " + dicom.getPath());
-            return this.dicom;
-        }else {
-            System.out.println("[error] DICOM file not find");
-            return null;
-        }
+//    public MyDicom getMyDicom(){
+//        return this.myDicom;
+//    }
 
-    }
-
-    public String getImagePath(){
-        return imagePath;
-    }
-
-    public MyDicom getMyDicom(){
-        return this.myDicom;
+    /**
+     * 打开DICOM文件，将部分信息保存在MyDicom里
+     * 。执行后续操作的必要条件
+     * @param dcmFilePath
+     * @return
+     * @throws IOException
+     */
+    public MyDicom openDcmFile(String dcmFilePath) throws IOException{
+        return openDcmFile(new File(dcmFilePath));
     }
 
     /**
-     * 打开DICOM文件，将部分信息保存在MyDicom里。执行后续操作的必要条件
+     * 打开DICOM文件，将部分信息保存在MyDicom里
+     * 。执行后续操作的必要条件
+     * @param dcmFile
+     * @return
+     * @throws IOException
      */
-    public void openDcmFile() {
-        File dcmFile = getDicom();
+    public MyDicom openDcmFile(File dcmFile) throws IOException {
+        MyDicom myDicom = new MyDicom(dcmFile.getAbsolutePath());
+
         if(dcmFile == null){
             System.out.println("[error] variable 'dicom' is null");
-            return;
+
+            throw new IOException("[error] variable 'dicom' is null");
         }
         if(!isDicomFile(dcmFile)){
             System.out.println("[error] not dicom file");
-            return;
+            throw new IOException("[error] not dicom file");
         }
         try {
             DicomInputStream dcmIS = new DicomInputStream(dcmFile);
@@ -208,6 +246,8 @@ public class DcmReader {
             System.out.println("[error] can't open the file!");
         }
 
+        return myDicom;
+
     }
 
     public BufferedImage myDcmRead(File dcmFile) throws IOException {
@@ -215,6 +255,7 @@ public class DcmReader {
         Collections.addAll(list, ImageIO.getReaderFileSuffixes());
 
         String fileName = dcmFile.getName();
+        MyDicom myDicom = openDcmFile(dcmFile);
 
         BufferedImage image = new BufferedImage(myDicom.getWidth(),
                 myDicom.getHeight(),
@@ -227,15 +268,6 @@ public class DcmReader {
         return image;
     }
 
-    /**
-     * 保存DICOM文件，无参函数保存在默认文件加内
-     * DEFAULT_PATH
-     * "src/main/resources/static/DICOM/default"
-     */
-    public void saveDcmFile() {
-        File dcmFile = getDicom();
-        this.saveDcmFile(dcmFile, this.DEFAULT_PATH);
-    }
 
     /**
      * 保存DICOM文件
@@ -266,9 +298,9 @@ public class DcmReader {
      * @param path 保存路径
      * @throws IOException 异常抛出
      */
-    public void saveDcmFile(String path) throws IOException{
+    public void saveDcmFile(MyDicom myDicom,String path) throws IOException{
         //DicomInputStream dcmIS = new DicomInputStream(getDicom());
-        FileInputStream dcmIS = new FileInputStream(getDicom());
+        FileInputStream dcmIS = new FileInputStream(myDicom);
         this.saveDcmFile(dcmIS, path);
     }
 
@@ -294,22 +326,24 @@ public class DcmReader {
 
     }
 
-    public void getDcmImage() {
-        this.getDcmImage(BMP);
-    }
-
-    public void getDcmImage(String imageFormat){
-        this.getDcmImage(imageFormat, DEFAULT_IMAGE_PATH);
-    }
+//    @Deprecated
+//    public void getDcmImage() {
+//        this.getDcmImage(BMP);
+//    }
+//
+//    @Deprecated
+//    public void getDcmImage(String imageFormat){
+//        //this.getDcmImage(imageFormat, DEFAULT_IMAGE_PATH);
+//    }
 
     /**
      * 显示图片
+     * @param  dcmFile
      * @param imageFormat 图片格式
      * @param directory 保存路径的上级目录
      */
-    public void getDcmImage(String imageFormat, String directory) {
+    public void getDcmImage(File dcmFile, String imageFormat, String directory) {
         try {
-            File dcmFile = this.dicom;
             //System.out.println(dcmFile.isFile());
 //            BufferedImage artworkBuffered = ImageIO.read(dcmFile);
 //            BufferedImage thumbnailsBuffered = new BufferedImage(1024, 1024,
@@ -323,7 +357,7 @@ public class DcmReader {
             File imageFile = new File(directory
                     + fileName + "." + imageFormat);
             ImageIO.write(image, imageFormat, imageFile);
-            imagePath = imageFile.getAbsolutePath();
+           // imagePath = imageFile.getAbsolutePath();
             System.out.println("[success] completely open image!");
         } catch (IOException e) {
             e.printStackTrace();
@@ -332,8 +366,8 @@ public class DcmReader {
     }
 
     @Deprecated
-    public void convertImage() {
-        File dcmFile = this.dicom;
+    public void convertImage(File dcmFile) {
+
         Dcm2Jpg covertUtil = new Dcm2Jpg();
         covertUtil.initImageWriter("JPEG", null, "com.sun.imageio.plugins.*", null, 1);
         try {
@@ -370,7 +404,7 @@ public class DcmReader {
     /**
      * 获取图像像素
      */
-    public void imagePix() {
+    public void imagePix(MyDicom myDicom) {
         BufferedImage buffer = myDicom.getDcmImage();
         int i = 0;
         byte[] data = new byte[myDicom.getWidth()* myDicom.getHeight()];
@@ -397,8 +431,8 @@ public class DcmReader {
 
     }
 
-    public void imageCopy(BufferedImage copy){
-        BufferedImage temp = this.myDicom.getDcmImage();
+    public void imageCopy(MyDicom myDicom,BufferedImage copy){
+        BufferedImage temp = myDicom.getDcmImage();
         copy.copyData((WritableRaster)temp.getData());
     }
 
@@ -515,10 +549,11 @@ public class DcmReader {
 
     /**
      * 调窗算法
+     * @param dicom
      * @param imgPath 图片路径
      * @param type  部位类型
      */
-    public void windowLeveling(String imgPath, int type) throws IOException {
+    public void windowLeveling(MyDicom dicom, String imgPath, int type) throws IOException {
 
         BufferedImage image = myDcmRead(new File(imgPath));
 
@@ -531,16 +566,16 @@ public class DcmReader {
 
         switch(type){
             case SKELETON:
-                windowLeveling(pixelData,400, 2000);
+                windowLeveling(dicom, pixelData,400, 2000);
                 break;
             case THORACIC_CAVITY:
-                windowLeveling(pixelData, 50, 350);
+                windowLeveling(dicom, pixelData, 50, 350);
                 break;
             case LUNG:
-                windowLeveling(pixelData, -600, 1500);
+                windowLeveling(dicom, pixelData, -600, 1500);
                 break;
             case ABDOMEN:
-                windowLeveling(pixelData, 45, 250);
+                windowLeveling(dicom, pixelData, 45, 250);
                 break;
             default:
                 break;
@@ -549,12 +584,13 @@ public class DcmReader {
 
     /**
      * 调窗算法
+     * @param myDicom
      * @param pixelData 照片像素数组
      * @param windowCenter 窗位
      * @param windowWidth   窗宽
      *
      */
-    public void windowLeveling( byte[] pixelData, float windowCenter, float windowWidth){
+    public void windowLeveling(MyDicom myDicom, byte[] pixelData, float windowCenter, float windowWidth){
         float fMin = ( 2.0f * windowCenter - windowWidth )/ 2.0f + 0.5f;
         float fMax = ( 2.0f * windowCenter + windowWidth )/ 2.0f + 0.5f;
 

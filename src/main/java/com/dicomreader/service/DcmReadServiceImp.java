@@ -1,5 +1,6 @@
 package com.dicomreader.service;
 
+import com.dicomreader.pojo.MyDicom;
 import com.dicomreader.utils.DcmReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,7 @@ public class DcmReadServiceImp implements DcmReaderService{
     @Value("${tempFilePath.directory}")
     private String TEMP_DIRECTORY;
 
-
-    @Resource
-    private DcmReader dicom;
+    private DcmReader dicom = DcmReader.getInstance();
 
     /**
      * 对上传dicom的文件进行处理
@@ -53,9 +52,8 @@ public class DcmReadServiceImp implements DcmReaderService{
             imageName = imageName.replaceAll(".dcm",".bmp");
             //将上传的文件存储到本地
             mFile.transferTo(file);
-            dicom.setDicom(file);
-            dicom.openDcmFile();
-            BufferedImage image = dicom.getMyDicom().getDcmImage();
+
+            BufferedImage image = dicom.openDcmFile(file).getDcmImage();
 
             ImageIO.write(image,"bmp",new File(filePath + imageName));
 
@@ -72,16 +70,19 @@ public class DcmReadServiceImp implements DcmReaderService{
      * @return
      */
     @Override
-    public BufferedImage getImageFile() {
-        if(dicom.getMyDicom().getDcmImage()!= null)
-            return dicom.getMyDicom().getDcmImage();
-        else {
-            try {
+    public BufferedImage getImageFile(MultipartFile mFile) {
+        try {
+            MyDicom myDicom = dicom.openDcmFile(mFile.getOriginalFilename());
+            if(myDicom.getDcmImage()!= null)
+                return myDicom.getDcmImage();
+            else
                 return ImageIO.read(new File(IMAGE_NULL));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+
         return null;
     }
 }

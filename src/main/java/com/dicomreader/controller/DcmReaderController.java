@@ -47,8 +47,8 @@ public class DcmReaderController {
 
     @Resource
     private DcmReaderService dcmReaderService;
-    @Resource
-    private DcmReader dcmReader;
+
+    private DcmReader dcmReader = DcmReader.getInstance();
     @Value("${tempFilePath.directory}")
     private String TEMP_DIRECTORY;
 
@@ -79,7 +79,7 @@ public class DcmReaderController {
     public String uploadFile(@RequestParam(value = "file",required = true)MultipartFile file, HttpServletRequest request)
             throws IOException {
         String name =  dcmReaderService.initFile(file);
-        BufferedImage image = dcmReaderService.getImageFile();
+        BufferedImage image = dcmReaderService.getImageFile(file);
         if(image == null)
             return NULL;
 

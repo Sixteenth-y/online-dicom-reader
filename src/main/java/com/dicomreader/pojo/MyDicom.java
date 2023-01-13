@@ -1,9 +1,11 @@
 package com.dicomreader.pojo;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.Serializable;
+import java.net.URI;
 
-public class MyDicom implements Serializable {
+public class MyDicom extends File implements Serializable {
     private String seriesInstanceUID;
     private String studyInstanceUID;
     private String patientID;
@@ -14,10 +16,24 @@ public class MyDicom implements Serializable {
     private int width;
     private BufferedImage dcmImage;
 
-    public MyDicom() {
+    public MyDicom(String pathname) {
+        super(pathname);
     }
 
-    public MyDicom(String seriesInstanceUID,
+    public MyDicom(String parent, String child) {
+        super(parent, child);
+    }
+
+    public MyDicom(File parent, String child) {
+        super(parent, child);
+    }
+
+    public MyDicom(URI uri) {
+        super(uri);
+    }
+
+
+    public void setDicomInfo(String seriesInstanceUID,
                    String studyInstanceUID,
                    String patientID,
                    String patientName,

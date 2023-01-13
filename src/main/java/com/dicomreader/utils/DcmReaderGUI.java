@@ -16,8 +16,8 @@ public class DcmReaderGUI extends JFrame {
     private static final int DEFAULT_WIDTH = 512;
     private static final int DEFAULT_HEIGHT = 768;
     private static final String DEFAULT_PATH = "static/DICOM/image";
-    public DcmReader reader = new DcmReader();
-    public MyDicom myDicom = reader.getMyDicom();
+    public DcmReader reader = DcmReader.getInstance();
+    public MyDicom myDicom ;
 
     public static void main(String[] args) {
 //        String[] path = {"src/main/resources/static/DICOM/82821227"
@@ -28,11 +28,16 @@ public class DcmReaderGUI extends JFrame {
 //        gui.reader.setDicom(new File(path[2]));
 //        gui.reader.openDcmFile();
 //        gui.creatGUI();
-        int width = gui.reader.getMyDicom().getWidth();
-        int height = gui.reader.getMyDicom().getHeight();
-        System.out.println("width: "+ width + "\n"
-                            +"height: " + height);
-
+        int width = 0;
+        int height = 0;
+        try {
+            width = gui.reader.openDcmFile("").getWidth();
+            height = gui.reader.openDcmFile("").getHeight();
+            System.out.println("width: "+ width + "\n"
+                    +"height: " + height);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public DcmReaderGUI(){
@@ -108,12 +113,14 @@ public class DcmReaderGUI extends JFrame {
             int result = chooser.showOpenDialog(null);
             if(result == JFileChooser.APPROVE_OPTION){
                 String fileName = chooser.getSelectedFile().getPath();
-                reader.setDicom(new File(fileName));
-                reader.openDcmFile();
-                reader.getDcmImage();
-                label.setIcon(new ImageIcon(reader.imagePath));
-                System.out.println(reader.imagePath());
+                try {
+                    myDicom =  reader.openDcmFile(fileName);
+                    label.setIcon(new ImageIcon(myDicom.getDcmImage()));
+                    System.out.println(myDicom.getAbsolutePath());
 
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             }
         }
